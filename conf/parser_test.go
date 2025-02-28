@@ -23,18 +23,21 @@ ListenPort = 51820  #comments don't matter
 PublicKey   =   xTIBA5rboUvnH4htodjb6e697QjLERt1NAB4mZqp8Dg=    
 Endpoint = 192.95.5.67:1234 
 AllowedIPs = 10.192.122.3/32, 10.192.124.1/24
+UpdateEndpointIP = 0
 
 [Peer] 
 PublicKey = TrMvSoP4jYQlY6RIzBgbssQqY3vxI2Pi+y71lOWWXX0= 
 Endpoint = [2607:5300:60:6b0::c05f:543]:2468 
 AllowedIPs = 10.192.122.4/32, 192.168.0.0/16
 PersistentKeepalive = 100
+UpdateEndpointIP = 1
 
 [Peer] 
 PublicKey = gN65BkIKy1eCE9pP1wdc8ROUtkHLF2PfAqYdyYBz6EA= 
 PresharedKey = TrMvSoP4jYQlY6RIzBgbssQqY3vxI2Pi+y71lOWWXX0= 
 Endpoint = test.wireguard.com:18981 
-AllowedIPs = 10.10.10.230/32`
+AllowedIPs = 10.10.10.230/32
+UpdateEndpointIP = 0`
 
 func noError(t *testing.T, err error) bool {
 	if err == nil {
@@ -87,15 +90,18 @@ func TestFromWgQuick(t *testing.T) {
 
 		lenTest(t, conf.Peers, 3)
 		lenTest(t, conf.Peers[0].AllowedIPs, 2)
+		equal(t, conf.Peers[0].UpdateEndpointIP,uint16(0x0))
 		equal(t, Endpoint{Host: "192.95.5.67", Port: 1234}, conf.Peers[0].Endpoint)
 		equal(t, "xTIBA5rboUvnH4htodjb6e697QjLERt1NAB4mZqp8Dg=", conf.Peers[0].PublicKey.String())
 
 		lenTest(t, conf.Peers[1].AllowedIPs, 2)
+		equal(t, conf.Peers[1].UpdateEndpointIP,uint16(0x1))
 		equal(t, Endpoint{Host: "2607:5300:60:6b0::c05f:543", Port: 2468}, conf.Peers[1].Endpoint)
 		equal(t, "TrMvSoP4jYQlY6RIzBgbssQqY3vxI2Pi+y71lOWWXX0=", conf.Peers[1].PublicKey.String())
 		equal(t, uint16(100), conf.Peers[1].PersistentKeepalive)
 
 		lenTest(t, conf.Peers[2].AllowedIPs, 1)
+		equal(t, conf.Peers[2].UpdateEndpointIP,uint16(0x0))
 		equal(t, Endpoint{Host: "test.wireguard.com", Port: 18981}, conf.Peers[2].Endpoint)
 		equal(t, "gN65BkIKy1eCE9pP1wdc8ROUtkHLF2PfAqYdyYBz6EA=", conf.Peers[2].PublicKey.String())
 		equal(t, "TrMvSoP4jYQlY6RIzBgbssQqY3vxI2Pi+y71lOWWXX0=", conf.Peers[2].PresharedKey.String())
